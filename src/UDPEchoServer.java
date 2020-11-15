@@ -9,10 +9,6 @@ public class UDPEchoServer {
     private static DatagramSocket dgramSocket;
     private static DatagramPacket inPacket, outPacket;
     private static byte[] buffer;
-    static double euroUSD = 1.10;
-    static double euroGBP = 0.84;
-    static double usdEURO = 0.89;
-    static double usdCNY = 6.94;
 
     public static void main(String[] args) {
         System.out.println("Opening port...\n");
@@ -29,6 +25,9 @@ public class UDPEchoServer {
         try {
             String messageIn, messageOut = null;
             int numMessages = 0;
+            double currency = 0.0;
+            String oldc = "";
+            String newc = "";
             do {
                 buffer = new byte[256]; //Step 2.
                 inPacket = new DatagramPacket(buffer, buffer.length); //Step 3.
@@ -37,37 +36,47 @@ public class UDPEchoServer {
                 int clientPort = inPacket.getPort(); //Step 5. 
                 messageIn = new String(inPacket.getData(), 0, inPacket.getLength()); //Step 6 takes in the users message that was sent from an outpacket and stores it in messageIn
 
-                String[] result = messageIn.split("\\s+");
-                double currency = Double.parseDouble(result[0]);
-                String oldc = result[1];
-                String newc = result[2];
+                String[] result = messageIn.split("\\s+"); //splits the users input up into different pieces
+
+                if(result.length == 3) { //ensure that the users input only consists of 3 parts
+                    try { //if it is perform a try
+                        currency = Double.parseDouble(result[0]); //parse the first part of the split into a double 
+                        oldc = result[1].toLowerCase(); //converts the string in the second split to lower case
+                        newc = result[2].toLowerCase(); //converts the string in the third split to lower case
+                    } catch (Exception e) { //if the try fails make sure the variables are set to default
+                        currency = 0.0;
+                        oldc = "";
+                        newc = "";
+                    }
+
+                } else {
+                    currency = 0.0;
+                    oldc = "";
+                    newc = "";
+                }
 
                 //if statement for converting Euro to USD
-                if (oldc.equals("Euro") && (newc.equals("USD"))) {
+                if (oldc.equals("euro") && (newc.equals("usd"))) {
                     currency *= 1.10;
                     messageOut = ("The converted amount is: " + currency);
                 }//end if statement for converting Euro to USD
-                
                 //else if statement for converting Euro to GBP
-                else if(oldc.equals("Euro") && (newc.equals("GBP"))) {
+                else if (oldc.equals("euro") && (newc.equals("gbp"))) {
                     currency *= 0.89;
                     messageOut = ("The converted amount is: " + currency);
                 }//end else if statement for converting Euro to GBP
-                
                 //else if statement for converting USD to Euro
-                else if(oldc.equals("USD") && (newc.equals("Euro"))) {
+                else if (oldc.equals("usd") && (newc.equals("euro"))) {
                     currency *= 0.84;
                     messageOut = ("The converted amount is: " + currency);
                 }//end else if statement for converting USD to Euro
-                
                 //else if statement for converting USD to CNY
-                else if(oldc.equals("USD") && (newc.equals("CNY"))) {
+                else if (oldc.equals("usd") && (newc.equals("cny"))) {
                     currency *= 6.94;
                     messageOut = ("The converted amount is: " + currency);
                 }//end else if statement for converting USD to CNY
-                
                 //else 
-                else{
+                else {
                     messageOut = ("Please follow the format");
                 }//end else
 
